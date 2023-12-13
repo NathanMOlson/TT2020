@@ -1,10 +1,15 @@
 ﻿import glob
 import os
 import fontforge
+
+f_base = fontforge.open("../TT.sfd")
 f = fontforge.font()
 
-f.ascent += 300
-f.descent += 300
+f.ascent = f_base.ascent + 300
+f.descent = f_base.descent + 300
+f.em = f_base.em
+f.uwidth = f_base.uwidth
+f.upos = f_base.upos
 
 
 for path in glob.glob("pngs/*.png"):
@@ -20,7 +25,7 @@ for path in glob.glob("pngs/*.png"):
         continue
     g.activeLayer = 1
     g.autoTrace()
-    #g.clear(0)
-    g.right_side_bearing = 547
+    g.clear(0)
+    g.width = 547
 
 f.save("test.sfd")
