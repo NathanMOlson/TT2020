@@ -1,5 +1,8 @@
 # TT2020 build files
 
+sudo apt-get intall python3-fontforge parallel gegl inkscape gimp
+pip3 install python-gegl CairoSVG
+
 Required:
 * Python 3+
 * GEGL
