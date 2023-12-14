@@ -108,6 +108,7 @@ for gn in glyphnames:
         g.width = f["A"].width
     svg_path = f"svgs/{gn}.svg"
     png_path = f"pngs/{gn}.png"
+    g.unlinkRef()
     g.export(svg_path)
     cairosvg.svg2png(url=svg_path, write_to=png_path, dpi=600)
     subprocess.run(["convert", png_path, "-channel", "A", "-negate", "-separate", png_path])

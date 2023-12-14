@@ -7,7 +7,7 @@ f = fontforge.font()
 
 f.ascent = f_base.ascent + 300
 f.descent = f_base.descent + 300
-f.em = f_base.em
+f.em = f.ascent + f.descent
 f.uwidth = f_base.uwidth
 f.upos = f_base.upos
 
@@ -18,7 +18,6 @@ for path in glob.glob("pngs/*.png"):
     g = f.createChar(-1, name)
     g.clear()
     try:
-        # Change this line as needed, depending on where the glyph bitmaps are
         g.importOutlines(path)
     except:
         print(f"Failed to import {g.glyphname}")
