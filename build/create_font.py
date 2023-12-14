@@ -25,6 +25,7 @@ for path in glob.glob("pngs/*.png"):
     g.activeLayer = 1
     g.autoTrace()
     g.clear(0)
+    g.nltransform("x - 10", "y")
     g.width = 547
 
 f.save("test.sfd")
