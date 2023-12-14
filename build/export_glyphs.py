@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import subprocess
+import csv
 import random
 import numpy as np
 import matplotlib.pyplot as plt
@@ -134,6 +135,12 @@ glyphnames = ["space",
               "braceright",
               "asciitilde"]
 
+freq_by_ascii = {}
+with open('ascii_freq.csv', newline='') as csvfile:
+    reader = csv.DictReader(csvfile, fieldnames=['ascii', 'freq'])
+    for row in reader:
+        freq_by_ascii[int(row['ascii'])] = float(row['freq'])
+
 for gn in glyphnames:
     g = f[gn]
     if g.width == 0:
@@ -145,6 +152,11 @@ for gn in glyphnames:
     cairosvg.svg2png(url=svg_path, write_to=png_path, dpi=600)
     subprocess.run(["convert", png_path, "-channel", "A",
                    "-negate", "-separate", png_path])
+    ascii = fontforge.unicodeFromName(gn)
+    if not ascii in freq_by_ascii:
+        print(ascii)
+        freq_by_ascii[ascii] = 5e-8
+
 
 for gn in glyphnames:
     orig_path = f"orig_pngs/{gn}.png"
