@@ -139,15 +139,20 @@ for gn in glyphnames:
     if g.width == 0:
         g.width = f["A"].width
     svg_path = f"svgs/{gn}.svg"
-    png_path = f"pngs/{gn}.png"
+    png_path = f"orig_pngs/{gn}.png"
     g.unlinkRef()
     g.export(svg_path)
     cairosvg.svg2png(url=svg_path, write_to=png_path, dpi=600)
     subprocess.run(["convert", png_path, "-channel", "A",
                    "-negate", "-separate", png_path])
-    img = cv.imread(png_path, cv.IMREAD_UNCHANGED)
+
+for gn in glyphnames:
+    orig_path = f"orig_pngs/{gn}.png"
+    img = cv.imread(orig_path, cv.IMREAD_UNCHANGED)
     for i in range(N):
         if i >= 1:
-            png_path = f"pngs/{gn}.{i}.png"
+            out_path = f"pngs/{gn}.{i}.png"
+        else:
+            out_path = f"pngs/{gn}.png"
         img_mod = modify_glyph(img)
-        cv.imwrite(png_path, img_mod)
+        cv.imwrite(out_path, img_mod)
