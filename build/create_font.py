@@ -260,5 +260,6 @@ def create_font(config: FontConfig):
 
 
 np.random.seed(1234)
+configs = [FontConfig()]
 for config in configs:
     create_font(config)
