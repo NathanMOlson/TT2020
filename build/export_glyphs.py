@@ -10,19 +10,18 @@ import cv2 as cv
 
 N = 1
 
+CONST_VSHIFT_STD = 5
+CONST_HSHIFT_STD = 5
 VSHIFT_STD = 5
 HSHIFT_STD = 5
 BLUR = 3
 NOISE = 256
-INK_FRAC = 0.5
+INK_FRAC = 1.5
 INK_STD = 0.05
 
 
-def modify_glyph(img):
-
-    shift_x = HSHIFT_STD*np.random.randn()
-    shift_y = VSHIFT_STD*np.random.randn()
-    T = np.float32([[1, 0, shift_x], [0, 1, shift_y]])
+def modify_glyph(img, shift):
+    T = np.float32([[1, 0, shift[0]], [0, 1, shift[1]]])
     img_mod = cv.warpAffine(
         img, T, (img.shape[1], img.shape[0]), borderValue=255)
 
@@ -30,7 +29,11 @@ def modify_glyph(img):
 
     ink_pad = np.random.normal(INK_FRAC, INK_STD, (3, 3))
     ink_pad = cv.resize(ink_pad, (img_mod.shape[1], img_mod.shape[0]))
-    img_mod = (255 - (255 - img_mod) * ink_pad) + noise
+    if INK_FRAC <=1:
+        img_mod = (255 - (255 - img_mod) * ink_pad) + noise
+    else:
+        img_blur = cv.GaussianBlur(img_mod, (0, 0), (INK_FRAC - 1)*100)
+        img_mod = ((np.minimum(img, img_blur)/255)**ink_pad)*255 + noise
 
     img_mod = cv.GaussianBlur(img_mod, (0, 0), BLUR)
 
@@ -170,11 +173,19 @@ for gn in glyphnames:
 
 for gn in glyphnames:
     orig_path = f"orig_pngs/{gn}.png"
+    ascii = fontforge.unicodeFromName(gn)
+    freq = freq_by_ascii[ascii]
+
+    shift_x = CONST_HSHIFT_STD*np.random.randn()
+    shift_y = CONST_VSHIFT_STD*np.random.randn()
+
     img = cv.imread(orig_path, cv.IMREAD_UNCHANGED)
     for i in range(N):
         if i >= 1:
             out_path = f"pngs/{gn}.{i}.png"
         else:
             out_path = f"pngs/{gn}.png"
-        img_mod = modify_glyph(img)
+        shift = (shift_x + HSHIFT_STD*np.random.randn(),
+                 shift_y + VSHIFT_STD*np.random.randn())
+        img_mod = modify_glyph(img, (shift))
         cv.imwrite(out_path, img_mod)
