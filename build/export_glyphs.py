@@ -21,6 +21,7 @@ INK_STD = 0.05
 PRESSURE_STD = 0.05
 REPEATS = 1
 ITALIC = False
+IMG_WIDTH = 1001
 
 
 def modify_glyph(img, shift):
@@ -47,8 +48,6 @@ def modify_glyph(img, shift):
 
 
 f = fontforge.open("../TT.sfd")
-f.ascent += 300
-f.descent += 300
 
 glyphnames = ["space",
               "exclam",
@@ -187,6 +186,10 @@ for gn in glyphnames:
     shift_y = CONST_VSHIFT_STD*np.random.randn()
 
     img = cv.imread(orig_path, cv.IMREAD_UNCHANGED)
+    
+    T = np.float32([[1, 0, (IMG_WIDTH - img.shape[1])/2], [0, 1, 0]])
+    img = cv.warpAffine(
+        img, T, (IMG_WIDTH, img.shape[0]), borderValue=255)
     for i in range(N):
         if i >= 1:
             out_path = f"pngs/{gn}.{i}.png"
