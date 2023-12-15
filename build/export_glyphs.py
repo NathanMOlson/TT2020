@@ -10,15 +10,16 @@ import cv2 as cv
 
 N = 1
 
-CONST_VSHIFT_STD = 5
-CONST_HSHIFT_STD = 5
-VSHIFT_STD = 5
-HSHIFT_STD = 5
+CONST_VSHIFT_STD = 10
+CONST_HSHIFT_STD = 10
+VSHIFT_STD = 20
+HSHIFT_STD = 20
 BLUR = 3
 NOISE = 256
-INK_FRAC = 1.5
+INK_FRAC = 0.8
 INK_STD = 0.05
-PRESSURE_STD = 0.2
+PRESSURE_STD = 0.05
+REPEATS = 1
 
 
 def modify_glyph(img, shift):
@@ -187,7 +188,9 @@ for gn in glyphnames:
             out_path = f"pngs/{gn}.{i}.png"
         else:
             out_path = f"pngs/{gn}.png"
-        shift = (shift_x + HSHIFT_STD*np.random.randn(),
-                 shift_y + VSHIFT_STD*np.random.randn())
-        img_mod = modify_glyph(img, (shift))
-        cv.imwrite(out_path, img_mod)
+        img_mod = np.zeros_like(img)
+        for i in range(REPEATS):
+            shift = (shift_x + HSHIFT_STD*np.random.randn(),
+                    shift_y + VSHIFT_STD*np.random.randn())
+            img_mod += (255 - modify_glyph(img, shift))
+        cv.imwrite(out_path, (255 - img_mod).astype(np.uint8))
