@@ -173,6 +173,9 @@ for gn in glyphnames:
     ascii = fontforge.unicodeFromName(gn)
     freq_map = freq_map + (255 - np.mean(img, 1))/255.0*freq_by_ascii[ascii]
 
+underscore_shift_x = CONST_HSHIFT_STD*np.random.randn()
+underscore_shift_y = CONST_VSHIFT_STD*np.random.randn()
+underscore_img = cv.imread("orig_pngs/underscore.png", cv.IMREAD_UNCHANGED)
 
 for gn in glyphnames:
     orig_path = f"orig_pngs/{gn}.png"
@@ -193,4 +196,9 @@ for gn in glyphnames:
             shift = (shift_x + HSHIFT_STD*np.random.randn(),
                     shift_y + VSHIFT_STD*np.random.randn())
             img_mod += (255 - modify_glyph(img, shift))
+        if ITALIC and gn != "underscore":
+            shift = (underscore_shift_x + HSHIFT_STD*np.random.randn(),
+                    underscore_shift_y + VSHIFT_STD*np.random.randn())
+            img_mod += (255 - modify_glyph(underscore_img, shift))
+
         cv.imwrite(out_path, (255 - img_mod).astype(np.uint8))
