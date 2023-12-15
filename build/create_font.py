@@ -209,7 +209,7 @@ def make_glyphs(config: FontConfig, bold: bool, italic: bool):
             cv.imwrite(out_path, (255 - img_mod).astype(np.uint8))
 
 
-def create_font_from_pngs(config):
+def create_font_from_pngs(config, bold: bool, italic: bool):
     f_base = fontforge.open("../TT.sfd")
     f = fontforge.font()
 
@@ -218,6 +218,12 @@ def create_font_from_pngs(config):
     f.em = f.ascent + f.descent
     f.uwidth = f_base.uwidth
     f.upos = f_base.upos
+
+    font_name = config.font_name
+    if bold:
+        font_name += "-Bold"
+    if italic:
+        font_name += "-Italic"
 
     for path in glob.glob("pngs/*.png"):
         name = os.path.splitext(os.path.basename(path))[0]
@@ -237,13 +243,20 @@ def create_font_from_pngs(config):
         g.nltransform(f"x - {shift}", "y")
         g.width = f_base["M"].width
 
-    f.save(f"{config.font_name}.sfd")
+    f.save(f"{font_name}.sfd")
 
 
 def create_font(config: FontConfig):
     create_orig_pngs(config)
+
     make_glyphs(config, bold=False, italic=False)
-    create_font_from_pngs(config)
+    create_font_from_pngs(config, bold=False, italic=False)
+
+    make_glyphs(config, bold=False, italic=True)
+    create_font_from_pngs(config, bold=False, italic=True)
+
+    make_glyphs(config, bold=True, italic=False)
+    create_font_from_pngs(config, bold=True, italic=False)
 
 
 np.random.seed(1234)
