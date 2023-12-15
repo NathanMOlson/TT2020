@@ -14,10 +14,11 @@ VSHIFT_STD = 5
 HSHIFT_STD = 5
 BLUR = 3
 NOISE = 256
-INK_TIME = 3
+INK_FRAC = 0.5
+INK_STD = 0.05
 
 
-def modify_glyph(img, ink_pad):
+def modify_glyph(img):
 
     shift_x = HSHIFT_STD*np.random.randn()
     shift_y = VSHIFT_STD*np.random.randn()
@@ -27,10 +28,9 @@ def modify_glyph(img, ink_pad):
 
     noise = np.random.normal(0, NOISE, img.shape)
 
-    if img_mod.shape == ink_pad.shape:
-        img_mod = 255*(1-(255-img_mod)/255.0*ink_pad) + noise
-    else:
-        print("glyph did not use ink pad")
+    ink_pad = np.random.normal(INK_FRAC, INK_STD, (3, 3))
+    ink_pad = cv.resize(ink_pad, (img_mod.shape[1], img_mod.shape[0]))
+    img_mod = (255 - (255 - img_mod) * ink_pad) + noise
 
     img_mod = cv.GaussianBlur(img_mod, (0, 0), BLUR)
 
@@ -166,10 +166,7 @@ for gn in glyphnames:
     img = cv.imread(orig_path, cv.IMREAD_UNCHANGED)
     ascii = fontforge.unicodeFromName(gn)
     freq_map = freq_map + (255 - np.mean(img, 1))/255.0*freq_by_ascii[ascii]
-    
-ink_map = np.exp(-INK_TIME*freq_map)
-ink_pad = np.tile(ink_map, (img.shape[1], 1)).transpose()
-print(ink_pad.shape)
+
 
 for gn in glyphnames:
     orig_path = f"orig_pngs/{gn}.png"
@@ -179,5 +176,5 @@ for gn in glyphnames:
             out_path = f"pngs/{gn}.{i}.png"
         else:
             out_path = f"pngs/{gn}.png"
-        img_mod = modify_glyph(img, ink_pad)
+        img_mod = modify_glyph(img)
         cv.imwrite(out_path, img_mod)
