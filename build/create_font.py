@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 import subprocess
 import glob
 import os
@@ -12,19 +12,19 @@ import cv2 as cv
 
 @dataclass
 class FontConfig:
-    base_font = "../TT.sfd"
-    num_alts = 1
-    const_vshift_std = 5.0
-    const_hshift_std = 5.0
-    vshift_std = 5.0
-    hshift_std = 25.0
-    blur = 3.0
-    noise = 256.0
-    ink_frac = 0.75
-    ink_std = 0.08
-    pressure_std = 0.08
-    bold_repeats = 2
-    font_name = "NoJo"
+    base_font: str = "../TT.sfd"
+    num_alts: int = 1
+    const_vshift_std: float = 5.0
+    const_hshift_std: float = 5.0
+    vshift_std: float = 5.0
+    hshift_std: float = 25.0
+    blur: float = 3.0
+    noise: float = 256.0
+    ink_frac: float = 0.75
+    ink_std: float = 0.08
+    pressure_std: float = 0.08
+    bold_repeats: int = 2
+    font_name: str = "NoJo"
 
 
 IMG_WIDTH = 1001
@@ -141,7 +141,7 @@ def modify_glyph(img, shift, config: FontConfig):
         img_mod = (255 - (255 - img_mod) * ink_pad) + noise
     else:
         img_blur = cv.GaussianBlur(img_mod, (0, 0), (ink_frac - 1)*100)
-        img_mod = ((np.minimum(img, img_blur)/255)**ink_pad)*255 + noise
+        img_mod = ((np.minimum(img_mod, img_blur)/255)**ink_pad)*255 + noise
 
     img_mod = cv.GaussianBlur(img_mod, (0, 0), config.blur)
 
@@ -242,6 +242,6 @@ def create_font(config: FontConfig):
     create_font_from_pngs(config)
 
 
-configs = [FontConfig()]
+np.random.seed(1234)
 for config in configs:
     create_font(config)
