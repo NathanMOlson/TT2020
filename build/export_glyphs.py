@@ -18,6 +18,7 @@ BLUR = 3
 NOISE = 256
 INK_FRAC = 1.5
 INK_STD = 0.05
+PRESSURE_STD = 0.2
 
 
 def modify_glyph(img, shift):
@@ -27,12 +28,13 @@ def modify_glyph(img, shift):
 
     noise = np.random.normal(0, NOISE, img.shape)
 
-    ink_pad = np.random.normal(INK_FRAC, INK_STD, (3, 3))
+    ink_frac = np.random.normal(INK_FRAC, PRESSURE_STD)
+    ink_pad = np.random.normal(ink_frac, INK_STD, (3, 3))
     ink_pad = cv.resize(ink_pad, (img_mod.shape[1], img_mod.shape[0]))
-    if INK_FRAC <=1:
+    if ink_frac <=1:
         img_mod = (255 - (255 - img_mod) * ink_pad) + noise
     else:
-        img_blur = cv.GaussianBlur(img_mod, (0, 0), (INK_FRAC - 1)*100)
+        img_blur = cv.GaussianBlur(img_mod, (0, 0), (ink_frac - 1)*100)
         img_mod = ((np.minimum(img, img_blur)/255)**ink_pad)*255 + noise
 
     img_mod = cv.GaussianBlur(img_mod, (0, 0), BLUR)
