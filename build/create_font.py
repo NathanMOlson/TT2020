@@ -13,7 +13,7 @@ import cv2 as cv
 @dataclass
 class FontConfig:
     base_font: str = "../TT.sfd"
-    num_alts: int = 1
+    num_alts: int = 2
     const_vshift_std: float = 5.0
     const_hshift_std: float = 5.0
     vshift_std: float = 5.0
@@ -29,6 +29,7 @@ class FontConfig:
 
 IMG_WIDTH = 1001
 ORIG_GLYPH_DIR = "orig_pngs"
+FEATURE_FILE = "calt.fea"
 
 GLYPHNAMES = ["space",
               "exclam",
@@ -166,6 +167,7 @@ def create_orig_pngs(config: FontConfig):
 
 
 def make_glyphs(config: FontConfig, bold: bool, italic: bool):
+    print(f"making glyphs for {config.font_name}")
     underscore_shift_x = config.const_hshift_std*np.random.randn()
     underscore_shift_y = config.const_vshift_std*np.random.randn()
     underscore_img = cv.imread(
@@ -230,10 +232,10 @@ def create_font_from_pngs(config, bold: bool, italic: bool):
     f.familyname = config.font_name
     f.fontname = font_name
     f.fullname = font_name
+    print(f"Creating {font_name}")
 
     for path in glob.glob("pngs/*.png"):
         name = os.path.splitext(os.path.basename(path))[0]
-        print(path, name)
         g = f.createChar(-1, name)
         g.clear()
         try:
@@ -249,12 +251,33 @@ def create_font_from_pngs(config, bold: bool, italic: bool):
         g.nltransform(f"x - {shift}", "y")
         g.width = f_base["M"].width
 
+    f.mergeFeature(FEATURE_FILE)
+
     f.save(f"{font_name}.sfd")
-    f.generate(f"{font_name}.ttf")
+    f.generate(f"{font_name}.ttf", flags=("opentype"))
+
+
+def create_feature_file(config: FontConfig):
+    with open(FEATURE_FILE, "w") as f:
+        for i in range(config.num_alts):
+            f.write(f"@a{i} = [")
+            for gn in GLYPHNAMES:
+                if i == 0:
+                    f.write(f"{gn} ")
+                else:
+                    f.write(f"{gn}.{i} ")
+            f.write("];\n")
+
+        f.write("\nfeature calt {\n    lookup calt1 {\n")
+        for i in range(config.num_alts):
+            f.write(f"        sub @a{i} @a{i}' by @a{(i+1)%config.num_alts};\n")
+        f.write("    } calt1;\n} calt;\n")
 
 
 def create_font(config: FontConfig):
+    print(f"Setting up for {config.font_name}")
     create_orig_pngs(config)
+    create_feature_file(config)
 
     make_glyphs(config, bold=False, italic=False)
     create_font_from_pngs(config, bold=False, italic=False)
