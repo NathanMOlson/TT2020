@@ -170,6 +170,10 @@ def make_glyphs(config: FontConfig, bold: bool, italic: bool):
     underscore_shift_y = config.const_vshift_std*np.random.randn()
     underscore_img = cv.imread(
         f"{ORIG_GLYPH_DIR}/underscore.png", cv.IMREAD_UNCHANGED)
+    T = np.float32(
+        [[1, 0, (IMG_WIDTH - underscore_img.shape[1])/2], [0, 1, 0]])
+    underscore_img = cv.warpAffine(
+        underscore_img, T, (IMG_WIDTH, underscore_img.shape[0]), borderValue=255)
 
     for gn in GLYPHNAMES:
         orig_path = f"{ORIG_GLYPH_DIR}/{gn}.png"
@@ -200,7 +204,7 @@ def make_glyphs(config: FontConfig, bold: bool, italic: bool):
             if italic and gn != "underscore":
                 shift = (underscore_shift_x + config.hshift_std*np.random.randn(),
                          underscore_shift_y + config.vshift_std*np.random.randn())
-                img_mod += (255 - modify_glyph(underscore_img, shift))
+                img_mod += (255 - modify_glyph(underscore_img, shift, config))
 
             cv.imwrite(out_path, (255 - img_mod).astype(np.uint8))
 
