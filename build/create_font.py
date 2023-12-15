@@ -261,10 +261,10 @@ def create_font(config: FontConfig):
 
 np.random.seed(1234)
 configs = [FontConfig()]
-configs.append(FontConfig(font_name="NoJo-Light",
+configs.append(FontConfig(font_name="NoJoLight",
                           ink_frac=0.5, ink_std=0.03, pressure_std=0.01))
-configs.append(FontConfig(font_name="NoJo-Inky", ink_frac=1.5))
-configs.append(FontConfig(font_name="NoJo-Woggly", ink_std=0.16, pressure_std=0.08,
+configs.append(FontConfig(font_name="NoJoInky", ink_frac=1.5))
+configs.append(FontConfig(font_name="NoJoWoggly", ink_std=0.16, pressure_std=0.08,
                           const_hshift_std=8, const_vshift_std=8, vshift_std=16, hshift_std=40))
 for config in configs:
     create_font(config)
