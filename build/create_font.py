@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 import subprocess
 import glob
 import os
@@ -220,10 +220,16 @@ def create_font_from_pngs(config, bold: bool, italic: bool):
     f.upos = f_base.upos
 
     font_name = config.font_name
+    f.weight = "Regular"
     if bold:
         font_name += "-Bold"
+        f.weight = "Bold"
     if italic:
         font_name += "-Italic"
+        f.weight = "Italic"
+    f.familyname = config.font_name
+    f.fontname = font_name
+    f.fullname = font_name
 
     for path in glob.glob("pngs/*.png"):
         name = os.path.splitext(os.path.basename(path))[0]
@@ -244,6 +250,7 @@ def create_font_from_pngs(config, bold: bool, italic: bool):
         g.width = f_base["M"].width
 
     f.save(f"{font_name}.sfd")
+    f.generate(f"{font_name}.ttf")
 
 
 def create_font(config: FontConfig):
