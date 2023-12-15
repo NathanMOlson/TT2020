@@ -14,25 +14,29 @@ VSHIFT_STD = 5
 HSHIFT_STD = 5
 BLUR = 3
 NOISE = 256
+INK_TIME = 3
 
 
-def modify_glyph(img):
-
-    noise = np.random.normal(0, NOISE, img.shape)
-
-    img_mod = img.astype(float)/2 + noise + 128
-
-    img_mod = cv.GaussianBlur(img_mod, (0, 0), BLUR)
-
-    img_mod = ((img_mod > 128)*255).astype(np.uint8)
+def modify_glyph(img, ink_pad):
 
     shift_x = HSHIFT_STD*np.random.randn()
     shift_y = VSHIFT_STD*np.random.randn()
     T = np.float32([[1, 0, shift_x], [0, 1, shift_y]])
     img_mod = cv.warpAffine(
-        img_mod, T, (img.shape[1], img.shape[0]), borderValue=255)
+        img, T, (img.shape[1], img.shape[0]), borderValue=255)
 
-    return img_mod
+    noise = np.random.normal(0, NOISE, img.shape)
+
+    if img_mod.shape == ink_pad.shape:
+        img_mod = 255*(1-(255-img_mod)/255.0*ink_pad) + noise
+    else:
+        print("glyph did not use ink pad")
+
+    img_mod = cv.GaussianBlur(img_mod, (0, 0), BLUR)
+
+    img_mod = ((img_mod > 128)*255).astype(np.uint8)
+
+    return img_mod.astype(np.uint8)
 
 
 f = fontforge.open("../TT.sfd")
@@ -143,8 +147,7 @@ with open('ascii_freq.csv', newline='') as csvfile:
 
 for gn in glyphnames:
     g = f[gn]
-    if g.width == 0:
-        g.width = f["A"].width
+    g.width = f["M"].width
     svg_path = f"svgs/{gn}.svg"
     png_path = f"orig_pngs/{gn}.png"
     g.unlinkRef()
@@ -154,9 +157,19 @@ for gn in glyphnames:
                    "-negate", "-separate", png_path])
     ascii = fontforge.unicodeFromName(gn)
     if not ascii in freq_by_ascii:
-        print(ascii)
         freq_by_ascii[ascii] = 5e-8
 
+freq_map = np.zeros(f.ascent + f.descent)
+
+for gn in glyphnames:
+    orig_path = f"orig_pngs/{gn}.png"
+    img = cv.imread(orig_path, cv.IMREAD_UNCHANGED)
+    ascii = fontforge.unicodeFromName(gn)
+    freq_map = freq_map + (255 - np.mean(img, 1))/255.0*freq_by_ascii[ascii]
+    
+ink_map = np.exp(-INK_TIME*freq_map)
+ink_pad = np.tile(ink_map, (img.shape[1], 1)).transpose()
+print(ink_pad.shape)
 
 for gn in glyphnames:
     orig_path = f"orig_pngs/{gn}.png"
@@ -166,5 +179,5 @@ for gn in glyphnames:
             out_path = f"pngs/{gn}.{i}.png"
         else:
             out_path = f"pngs/{gn}.png"
-        img_mod = modify_glyph(img)
+        img_mod = modify_glyph(img, ink_pad)
         cv.imwrite(out_path, img_mod)
