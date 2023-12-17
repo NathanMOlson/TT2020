@@ -258,10 +258,13 @@ def create_font_from_pngs(config, bold: bool, italic: bool):
         g.nltransform(f"x - {shift}", "y")
         g.width = f_base["M"].width
 
+    f_base.close()
+
     f.mergeFeature(FEATURE_FILE)
 
     f.save(f"{font_name}.sfd")
     f.generate(f"{font_name}.ttf", flags=("opentype"))
+    f.close()
 
 
 def create_feature_file(config: FontConfig):
