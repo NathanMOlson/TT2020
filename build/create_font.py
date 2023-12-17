@@ -170,6 +170,8 @@ def create_orig_pngs(config: FontConfig):
         subprocess.run(["convert", png_path, "-channel", "A",
                         "-negate", "-separate", png_path])
 
+    f_base.close()
+
 
 def make_glyphs(config: FontConfig, bold: bool, italic: bool):
     shutil.rmtree(f"pngs", ignore_errors=True)
