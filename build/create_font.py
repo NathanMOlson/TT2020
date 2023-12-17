@@ -13,7 +13,7 @@ import cv2 as cv
 @dataclass
 class FontConfig:
     base_font: str = "../TT.sfd"
-    num_alts: int = 2
+    num_alts: int = 9
     const_vshift_std: float = 5.0
     const_hshift_std: float = 5.0
     vshift_std: float = 5.0
