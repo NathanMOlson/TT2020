@@ -2,6 +2,7 @@
 import subprocess
 import glob
 import os
+import shutil
 from dataclasses import dataclass
 import numpy as np
 import matplotlib.pyplot as plt
@@ -152,6 +153,10 @@ def modify_glyph(img, shift, config: FontConfig):
 
 
 def create_orig_pngs(config: FontConfig):
+    shutil.rmtree("svgs", ignore_errors=True)
+    os.mkdir("svgs")
+    shutil.rmtree(f"{ORIG_GLYPH_DIR}", ignore_errors=True)
+    os.mkdir(f"{ORIG_GLYPH_DIR}")
     f_base = fontforge.open(config.base_font)
 
     for gn in GLYPHNAMES:
@@ -167,6 +172,8 @@ def create_orig_pngs(config: FontConfig):
 
 
 def make_glyphs(config: FontConfig, bold: bool, italic: bool):
+    shutil.rmtree(f"pngs", ignore_errors=True)
+    os.mkdir("pngs")
     print(f"making glyphs for {config.font_name}")
     underscore_shift_x = config.const_hshift_std*np.random.randn()
     underscore_shift_y = config.const_vshift_std*np.random.randn()
@@ -270,7 +277,8 @@ def create_feature_file(config: FontConfig):
 
         f.write("\nfeature calt {\n    lookup calt1 {\n")
         for i in range(config.num_alts):
-            f.write(f"        sub @a{i} @a{i}' by @a{(i+1)%config.num_alts};\n")
+            f.write(
+                f"        sub @a{i} @a{i}' by @a{(i+1)%config.num_alts};\n")
         f.write("    } calt1;\n} calt;\n")
 
 
