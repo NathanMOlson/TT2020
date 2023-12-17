@@ -2,6 +2,7 @@
 import subprocess
 import glob
 import os
+import gc
 import shutil
 from dataclasses import dataclass
 import numpy as np
@@ -267,6 +268,7 @@ def create_font_from_pngs(config, bold: bool, italic: bool):
     f.save(f"{font_name}.sfd")
     f.generate(f"{font_name}.ttf", flags=("opentype"))
     f.close()
+    gc.collect()
 
 
 def create_feature_file(config: FontConfig):
