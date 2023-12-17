@@ -4,6 +4,7 @@ import glob
 import os
 import gc
 import shutil
+import sys
 from dataclasses import dataclass
 import numpy as np
 import matplotlib.pyplot as plt
@@ -15,7 +16,7 @@ import cv2 as cv
 @dataclass
 class FontConfig:
     base_font: str = "../TT.sfd"
-    num_alts: int = 9
+    num_alts: int = 2
     const_vshift_std: float = 5.0
     const_hshift_std: float = 5.0
     vshift_std: float = 5.0
@@ -238,11 +239,12 @@ def create_font_from_pngs(config, bold: bool, italic: bool):
         f.weight = "Bold"
     if italic:
         font_name += "-Italic"
-        f.weight = "Italic"
     f.familyname = config.font_name
     f.fontname = font_name
     f.fullname = font_name
     print(f"Creating {font_name}")
+    print(f"base: {f_base.sfnt_names}")
+    print(f"f: {f.sfnt_names}")
 
     for path in glob.glob("pngs/*.png"):
         name = os.path.splitext(os.path.basename(path))[0]
@@ -289,19 +291,13 @@ def create_feature_file(config: FontConfig):
         f.write("    } calt1;\n} calt;\n")
 
 
-def create_font(config: FontConfig):
+def create_font(config: FontConfig, bold: bool, italic: bool):
     print(f"Setting up for {config.font_name}")
     create_orig_pngs(config)
     create_feature_file(config)
 
-    make_glyphs(config, bold=False, italic=False)
-    create_font_from_pngs(config, bold=False, italic=False)
-
-    make_glyphs(config, bold=False, italic=True)
-    create_font_from_pngs(config, bold=False, italic=True)
-
-    make_glyphs(config, bold=True, italic=False)
-    create_font_from_pngs(config, bold=True, italic=False)
+    make_glyphs(config, bold, italic)
+    create_font_from_pngs(config, bold, italic)
 
 
 np.random.seed(1234)
@@ -311,5 +307,6 @@ configs.append(FontConfig(font_name="NoJoLight",
 configs.append(FontConfig(font_name="NoJoInky", ink_frac=1.5))
 configs.append(FontConfig(font_name="NoJoWoggly", ink_std=0.16, pressure_std=0.08,
                           const_hshift_std=8, const_vshift_std=8, vshift_std=16, hshift_std=40))
-for config in configs:
-    create_font(config)
+
+i = int(sys.argv[1])
+create_font(configs[i//3], i%3 == 1, i%3 ==2)
