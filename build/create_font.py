@@ -234,11 +234,14 @@ def create_font_from_pngs(config, bold: bool, italic: bool):
 
     font_name = config.font_name
     f.weight = "Regular"
+    f.os2_stylemap = 0x40
     if bold:
         font_name += "-Bold"
         f.weight = "Bold"
+        f.os2_stylemap = 0x20
     if italic:
         font_name += "-Italic"
+        f.os2_stylemap = 0x01
     f.familyname = config.font_name
     f.fontname = font_name
     f.fullname = font_name
