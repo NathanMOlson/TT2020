@@ -16,7 +16,7 @@ import cv2 as cv
 @dataclass
 class FontConfig:
     base_font: str = "../TT.sfd"
-    num_alts: int = 2
+    num_alts: int = 9
     const_vshift_std: float = 5.0
     const_hshift_std: float = 5.0
     vshift_std: float = 5.0
@@ -243,8 +243,6 @@ def create_font_from_pngs(config, bold: bool, italic: bool):
     f.fontname = font_name
     f.fullname = font_name
     print(f"Creating {font_name}")
-    print(f"base: {f_base.sfnt_names}")
-    print(f"f: {f.sfnt_names}")
 
     for path in glob.glob("pngs/*.png"):
         name = os.path.splitext(os.path.basename(path))[0]
