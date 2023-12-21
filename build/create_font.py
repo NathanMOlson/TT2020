@@ -288,7 +288,7 @@ def create_feature_file(config: FontConfig):
         f.write("\nfeature calt {\n    lookup calt1 {\n")
         for i in range(config.num_alts):
             f.write(
-                f"        sub @a{i} @a{i}' by @a{(i+1)%config.num_alts};\n")
+                f"        sub @a{i} @a0' by @a{(i+1)%config.num_alts};\n")
         f.write("    } calt1;\n} calt;\n")
 
 
