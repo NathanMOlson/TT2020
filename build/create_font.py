@@ -128,7 +128,11 @@ GLYPHNAMES = ["space",
               "braceleft",
               "bar",
               "braceright",
-              "asciitilde"]
+              "asciitilde",
+              "quotedblleft",
+              "quotedblright",
+              "quoteleft",
+              "quoteright"]
 
 
 def modify_glyph(img, shift, config: FontConfig):
@@ -189,7 +193,12 @@ def make_glyphs(config: FontConfig, bold: bool, italic: bool):
         underscore_img, T, (IMG_WIDTH, underscore_img.shape[0]), borderValue=255)
 
     for gn in GLYPHNAMES:
-        orig_path = f"{ORIG_GLYPH_DIR}/{gn}.png"
+        if gn == "quotedblleft" or gn == "quotedblright":
+            orig_path = f"{ORIG_GLYPH_DIR}/quotedbl.png"
+        if gn == "quoteleft" or gn == "quoteright":
+            orig_path = f"{ORIG_GLYPH_DIR}/quotesingle.png"
+        else:
+            orig_path = f"{ORIG_GLYPH_DIR}/{gn}.png"
 
         if gn == "underscore":
             shift_x = underscore_shift_x
